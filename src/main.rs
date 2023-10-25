@@ -48,15 +48,38 @@ fn main() {
         exit(-1);
     }
     
-    let teams = match json_loader.load_teams() {
-        Some(t) => t,
+    // let teams = match json_loader.load_teams() {
+    //     Some(t) => t,
+    //     None => {
+    //         warn!("JsonLoader not yet initialized");
+    //         exit(-1);
+    //     }
+    // };
+    
+    // for t in teams.iter() {
+    //     println!("{} {}", t.id, t.name);
+    // }
+
+    let leagues = match json_loader.load_leagues() {
+        Some(l) => l,
         None => {
             warn!("JsonLoader not yet initialized");
             exit(-1);
         }
     };
     
-    for t in teams.iter() {
-        println!("{} {}", t.id, t.name);
+    if let Some(league) = leagues.get(0) {
+        for round in league.rounds.iter() {
+            for m in round.matches.iter() {
+                println!(
+                    "Match: {}    {} v {} Score: {}:{}",
+                    m.date,
+                    m.team1,
+                    m.team2,
+                    m.score.get_team_1_score().unwrap_or(&-1),
+                    m.score.get_team_2_score().unwrap_or(&-1)
+                );
+            }
+        }
     }
 }

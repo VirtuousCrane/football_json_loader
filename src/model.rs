@@ -8,7 +8,7 @@ pub struct MatchTeamList {
 }
 
 #[derive(Serialize, Deserialize)]
-#[derive(Eq, Hash, Clone)]
+#[derive(Clone)]
 pub struct Team {
     #[serde(skip_deserializing, default)]
     pub id: i32,
@@ -16,8 +16,51 @@ pub struct Team {
     pub code: Option<String>
 }
 
-impl PartialEq for Team {
-    fn eq(&self, other: &Self) -> bool {
-        self.name.eq(&other.name)
+
+#[derive(Serialize, Deserialize)]
+pub struct League {
+    pub name: String,
+    pub rounds: Vec<LeagueRound>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct LeagueRound {
+    pub name: String,
+    pub matches: Vec<LeagueMatch>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(default)]
+pub struct LeagueMatch {
+    pub date: String,
+    pub team1: String,
+    pub team2: String,
+    pub score: LeagueScore,
+}
+
+impl Default for LeagueMatch {
+    fn default() -> Self {
+        LeagueMatch { date: String::new(), team1: String::new(), team2: String::new(), score: LeagueScore::default() }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct LeagueScore {
+    pub ft: Vec<i32>,
+}
+
+impl LeagueScore {
+    pub fn get_team_1_score(&self) -> Option<&i32> {
+        self.ft.get(0)
+    }
+    
+    pub fn get_team_2_score(&self) -> Option<&i32> {
+        self.ft.get(1)
+    }
+}
+
+impl Default for LeagueScore {
+    fn default() -> Self {
+        LeagueScore { ft: vec![-1, -1] }
     }
 }

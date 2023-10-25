@@ -2,11 +2,12 @@ use std::{path::{PathBuf, Path}, fs, collections::HashSet, io};
 
 use log::{warn, info};
 
-use crate::model::{Team, MatchTeamList};
+use crate::model::{Team, MatchTeamList, League};
 
 pub struct JsonLoader {
     files: Vec<PathBuf>,
     teams: Vec<Team>,
+    leagues: Vec<League>,
     is_initialized: bool
 }
 
@@ -15,6 +16,7 @@ impl JsonLoader {
         return JsonLoader {
             files: Vec::new(),
             teams: Vec::new(),
+            leagues: Vec::new(),
             is_initialized: false,
         };
     }
@@ -107,6 +109,39 @@ impl JsonLoader {
         }
         
         return Some(self.get_teams());
+    }
+    
+    pub fn load_leagues(&mut self) -> Option<&Vec<League>> {
+        if !self.is_initialized {
+            warn!("JsonLoader not yet initialized. This function call will return nothing");
+            return None;
+        }
+        
+        for file_path in &self.files {
+            if file_path.to_string_lossy().contains("clubs") {
+                continue;
+            }
+            
+            let file_content = match fs::read_to_string(file_path) {
+                Ok(f) => f,
+                Err(e) => {
+                    warn!("Failed to read: {} because: {}", file_path.to_string_lossy(), e.to_string());
+                    continue;
+                }
+            };
+            
+            let league: League = match serde_json::from_str(&file_content) {
+                Ok(l) => l,
+                Err(e) => {
+                    warn!("Failed to deserialize: {} because: {}", file_path.to_string_lossy(), e.to_string());
+                    continue;
+                }
+            };
+
+            self.leagues.push(league);
+        }
+        
+        Some(&self.leagues)
     }
 
     /// Reads all items in a directory
