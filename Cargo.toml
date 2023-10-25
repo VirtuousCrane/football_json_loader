@@ -1,0 +1,15 @@
+[package]
+name = "football_json_loader"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rusqlite = "0.29.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+argparse = "0.2.2"
+log = "0.4.17"
+env_logger = "0.10.0"
+git2 = "0.18.1"
