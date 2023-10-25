@@ -2,7 +2,7 @@ use std::{process::exit, path::Path};
 
 use argparse::{ArgumentParser, Store, StoreTrue};
 use env_logger::{Builder, Env};
-use football_json_loader::json::JsonLoader;
+use football_json_loader::{json::JsonLoader, model::{LeagueJsonFormat, LeagueMatchObject}};
 use git2::Repository;
 use log::{info, warn};
 
@@ -68,18 +68,35 @@ fn main() {
         }
     };
     
-    if let Some(league) = leagues.get(0) {
-        for round in league.rounds.iter() {
-            for m in round.matches.iter() {
-                println!(
-                    "Match: {}    {} v {} Score: {}:{}",
-                    m.date,
-                    m.team1,
-                    m.team2,
-                    m.score.get_team_1_score().unwrap_or(&-1),
-                    m.score.get_team_2_score().unwrap_or(&-1)
-                );
+    for league in leagues {
+        match league {
+            LeagueJsonFormat::OldFormat(old_league) => {
+                for round in old_league.rounds.iter() {
+                    for m in round.matches.iter() {
+                        println!(
+                            "Match: {}    {} v {} Score: {}:{}",
+                            m.get_date(),
+                            m.get_team_1_name(),
+                            m.get_team_2_name(),
+                            m.get_team_1_score().unwrap_or(&-1),
+                            m.get_team_2_score().unwrap_or(&-1)
+                        );
+                    }
+                }
+            },
+            LeagueJsonFormat::NewFormat(new_league) => {
+                for m in new_league.matches.iter() {
+                    println!(
+                        "Match: {}    {} v {} Score: {}:{}",
+                        m.get_date(),
+                        m.get_team_1_name(),
+                        m.get_team_2_name(),
+                        m.get_team_1_score().unwrap_or(&-1),
+                        m.get_team_2_score().unwrap_or(&-1)
+                    );
+                }
             }
         }
+        
     }
 }
