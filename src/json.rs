@@ -6,7 +6,7 @@ use crate::model::{Team, MatchTeamList};
 
 pub struct JsonLoader {
     files: Vec<PathBuf>,
-    teams: HashSet<Team>,
+    teams: Vec<Team>,
     is_initialized: bool
 }
 
@@ -14,7 +14,7 @@ impl JsonLoader {
     pub fn new() -> Self {
         return JsonLoader {
             files: Vec::new(),
-            teams: HashSet::new(),
+            teams: Vec::new(),
             is_initialized: false,
         };
     }
@@ -57,7 +57,7 @@ impl JsonLoader {
     }
 
     /// Loads all teams from all files. Will return None if struct has not been initialized.
-    pub fn load_teams(&mut self) -> Option<Vec<Team>> {
+    pub fn load_teams(&mut self) -> Option<&Vec<Team>> {
         if !self.is_initialized {
             warn!("JsonLoader not yet initialized. This function call will return nothing");
             return None;
@@ -84,13 +84,26 @@ impl JsonLoader {
                 }
             };
             
-            for team in match_team_list.teams {
-                if self.teams.contains(&team) {
+            for mut team in match_team_list.teams {
+                let mut found = false;
+                for t in self.teams.iter() {
+                    if t.name.eq(&team.name) {
+                        found = true;
+                    }
+                }
+                
+                if found {
                     continue;
                 }
                 
-                self.teams.insert(team);
+                team.id = self.teams.len() as i32 + 1;
+                self.teams.push(team);
             }
+        }
+        
+        // Assign id to teams
+        for (i, team) in self.teams.iter_mut().enumerate() {
+            team.id = i as i32;
         }
         
         return Some(self.get_teams());
@@ -109,7 +122,7 @@ impl JsonLoader {
         return Ok(file_path_list);
     }
     
-    pub fn get_teams(&self) -> Vec<Team> {
-        Vec::from_iter(self.teams.clone())
+    pub fn get_teams(&self) -> &Vec<Team> {
+        &self.teams
     }
 }

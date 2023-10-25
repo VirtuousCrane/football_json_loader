@@ -57,6 +57,6 @@ fn main() {
     };
     
     for t in teams.iter() {
-        println!("Team: {}, {}, {}", t.id, t.name, t.code.as_ref().unwrap_or(&String::from("NO CODE")));
+        println!("{} {}", t.id, t.name);
     }
 }
