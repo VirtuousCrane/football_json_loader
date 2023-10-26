@@ -2,7 +2,7 @@ use std::{process::exit, path::{Path, self}};
 
 use argparse::{ArgumentParser, Store, StoreTrue, StoreOption};
 use env_logger::{Builder, Env};
-use football_json_loader::{json::JsonLoader, db::DatabaseProcessor};
+use football_json_loader::{json::JsonLoader, db::DatabaseProcessor, model::{LeagueJsonFormat, LeagueMatch}};
 use git2::Repository;
 use log::{info, warn};
 
@@ -55,35 +55,25 @@ fn main() {
         exit(-1);
     }
     
-    let mut db_processor = DatabaseProcessor::new();
-    let db_init_result =  match db_loc {
-        Some(path) => db_processor.init(&path),
-        None => db_processor.init("football_json.sqlite")
+    let _teams = match json_loader.load_teams() {
+        Some(t) => t,
+        None => {
+            warn!("JsonLoader not yet initialized");
+            exit(-1);
+        }
     };
-    
-    if let Err(e) = db_init_result {
-        warn!("Failed to initialize database: {}", e.to_string());
-    }
-    
-    // let teams = match json_loader.load_teams() {
-    //     Some(t) => t,
-    //     None => {
-    //         warn!("JsonLoader not yet initialized");
-    //         exit(-1);
-    //     }
-    // };
     
     // for t in teams.iter() {
     //     println!("{} {}", t.id, t.name);
     // }
 
-    // let leagues = match json_loader.load_leagues() {
-    //     Some(l) => l,
-    //     None => {
-    //         warn!("JsonLoader not yet initialized");
-    //         exit(-1);
-    //     }
-    // };
+    let _leagues = match json_loader.load_leagues() {
+        Some(l) => l,
+        None => {
+            warn!("JsonLoader not yet initialized");
+            exit(-1);
+        }
+    };
     
     // for league in leagues {
     //     match league {
@@ -117,4 +107,20 @@ fn main() {
     //         }
     //     }
     // }
+    
+    // Saving the result to an SQLite database
+    let mut db_processor = DatabaseProcessor::new();
+    let db_init_result =  match db_loc {
+        Some(path) => db_processor.init(&path),
+        None => db_processor.init("football_json.sqlite")
+    };
+    
+    if let Err(e) = db_init_result {
+        warn!("Failed to initialize database: {}", e.to_string());
+    }
+    
+    if let Err(e) = db_processor.insert_data_from_loader(&json_loader) {
+        warn!("Failed to insert data into SQLite database: {}", e.to_string());
+    }
+
 }

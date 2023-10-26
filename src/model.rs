@@ -72,7 +72,6 @@ pub struct LeagueRound {
 
 #[derive(Serialize, Deserialize)]
 pub struct OldLeagueMatch {
-    //#[serde(with = "my_date_format")]
     pub date: NaiveDate,
     pub team1: String,
     pub team2: String,
@@ -176,10 +175,10 @@ pub struct NewLeagueFormat {
 
 #[derive(Serialize, Deserialize)]
 pub struct NewLeagueMatch {
-    stage: Option<String>,
-    round: String,
+    pub stage: Option<String>,
+    pub round: String,
     #[serde(flatten)]
-    match_info: OldLeagueMatch,
+    pub match_info: OldLeagueMatch,
 }
 
 impl LeagueMatch for NewLeagueMatch {

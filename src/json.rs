@@ -6,9 +6,9 @@ use crate::model::{Team, MatchTeamList, LeagueJsonFormat};
 
 pub struct JsonLoader {
     files: Vec<PathBuf>,
-    teams: Vec<Rc<Team>>,
+    pub teams: Vec<Rc<Team>>,
     team_name_map: HashMap<String, Rc<Team>>,
-    leagues: Vec<LeagueJsonFormat>,
+    pub leagues: Vec<LeagueJsonFormat>,
     is_initialized: bool
 }
 
@@ -130,7 +130,7 @@ impl JsonLoader {
                 }
             };
             
-            let league: LeagueJsonFormat = match serde_json::from_str(&file_content) {
+            let mut league: LeagueJsonFormat = match serde_json::from_str(&file_content) {
                 Ok(l) => l,
                 Err(e) => {
                     warn!("Failed to deserialize: {} because: {}", file_path.to_string_lossy(), e.to_string());
@@ -138,6 +138,7 @@ impl JsonLoader {
                 }
             };
 
+            league.set_league_id(self.leagues.len() as i32 + 1);
             self.leagues.push(league);
         }
         
@@ -163,5 +164,12 @@ impl JsonLoader {
     
     pub fn get_leagues(&self) -> &Vec<LeagueJsonFormat> {
         &self.leagues
+    }
+    
+    pub fn get_team_id_from_name(&self, name: &String) -> Option<i32> {
+        match self.team_name_map.get(name) {
+            Some(t) => Some(t.id),
+            None => None
+        }
     }
 }
