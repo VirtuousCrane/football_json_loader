@@ -2,7 +2,7 @@ use std::{process::exit, path::Path};
 
 use argparse::{ArgumentParser, Store, StoreTrue};
 use env_logger::{Builder, Env};
-use football_json_loader::{json::JsonLoader, model::{LeagueJsonFormat, LeagueMatch}};
+use football_json_loader::json::JsonLoader;
 use git2::Repository;
 use log::{info, warn};
 

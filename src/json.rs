@@ -1,8 +1,8 @@
-use std::{path::{PathBuf, Path}, fs, collections::HashSet, io};
+use std::{path::{PathBuf, Path}, fs, io};
 
 use log::{warn, info};
 
-use crate::model::{Team, MatchTeamList, OldLeagueFormat, LeagueJsonFormat};
+use crate::model::{Team, MatchTeamList, LeagueJsonFormat};
 
 pub struct JsonLoader {
     files: Vec<PathBuf>,
