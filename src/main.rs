@@ -1,13 +1,13 @@
-use std::{process::exit, path::Path};
+use std::{process::exit, path::{Path, self}};
 
-use argparse::{ArgumentParser, Store, StoreTrue};
+use argparse::{ArgumentParser, Store, StoreTrue, StoreOption};
 use env_logger::{Builder, Env};
-use football_json_loader::json::JsonLoader;
+use football_json_loader::{json::JsonLoader, db::DatabaseProcessor};
 use git2::Repository;
 use log::{info, warn};
 
 fn main() {
-    let mut db_loc = String::new();
+    let mut db_loc: Option<String> = None;
     let mut warning = false;
     let mut verbose = false;
 
@@ -21,7 +21,7 @@ fn main() {
             .add_option(&["-w", "--warnings"], StoreTrue, "Whether or not to show logs (Warnings only)");
 
         arg_parser.refer(&mut db_loc)
-            .add_option(&["-f", "--file_loc"], Store, "Where to save the SQLite Database");
+            .add_option(&["-f", "--file_loc"], StoreOption, "Where to save the SQLite Database");
         
         arg_parser.parse_args_or_exit();
     }
@@ -53,6 +53,16 @@ fn main() {
     if let Err(e) = json_loader.init() {
         warn!("Failed to initialize JsonLoader: {}", e.to_string());
         exit(-1);
+    }
+    
+    let mut db_processor = DatabaseProcessor::new();
+    let db_init_result =  match db_loc {
+        Some(path) => db_processor.init(&path),
+        None => db_processor.init("football_json.sqlite")
+    };
+    
+    if let Err(e) = db_init_result {
+        warn!("Failed to initialize database: {}", e.to_string());
     }
     
     // let teams = match json_loader.load_teams() {
