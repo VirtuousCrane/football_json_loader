@@ -67,13 +67,13 @@ fn main() {
     //     println!("{} {}", t.id, t.name);
     // }
 
-    let leagues = match json_loader.load_leagues() {
-        Some(l) => l,
-        None => {
-            warn!("JsonLoader not yet initialized");
-            exit(-1);
-        }
-    };
+    // let leagues = match json_loader.load_leagues() {
+    //     Some(l) => l,
+    //     None => {
+    //         warn!("JsonLoader not yet initialized");
+    //         exit(-1);
+    //     }
+    // };
     
     // for league in leagues {
     //     match league {
@@ -81,7 +81,8 @@ fn main() {
     //             for round in old_league.rounds.iter() {
     //                 for m in round.matches.iter() {
     //                     println!(
-    //                         "Match: {}    {} v {} Score: {}:{}",
+    //                         "{} Match: {}    {} v {} Score: {}:{}",
+    //                         old_league.name,
     //                         m.get_date(),
     //                         m.get_team_1_name(),
     //                         m.get_team_2_name(),
@@ -94,7 +95,8 @@ fn main() {
     //         LeagueJsonFormat::NewFormat(new_league) => {
     //             for m in new_league.matches.iter() {
     //                 println!(
-    //                     "Match: {}    {} v {} Score: {}:{}",
+    //                     "{} Match: {}    {} v {} Score: {}:{}",
+    //                     new_league.name,
     //                     m.get_date(),
     //                     m.get_team_1_name(),
     //                     m.get_team_2_name(),
@@ -104,6 +106,5 @@ fn main() {
     //             }
     //         }
     //     }
-        
     // }
 }

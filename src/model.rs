@@ -112,7 +112,6 @@ impl LeagueScore for NormalLeagueScore {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AustralianScore {
     pub et: Vec<i32>,
-    pub p: Vec<i32>,
 }
 
 impl LeagueScore for AustralianScore {
