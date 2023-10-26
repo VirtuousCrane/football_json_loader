@@ -160,4 +160,8 @@ impl JsonLoader {
     pub fn get_teams(&self) -> &Vec<Rc<Team>> {
         &self.teams
     }
+    
+    pub fn get_leagues(&self) -> &Vec<LeagueJsonFormat> {
+        &self.leagues
+    }
 }
