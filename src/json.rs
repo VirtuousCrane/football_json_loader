@@ -1,4 +1,4 @@
-use std::{path::{PathBuf, Path}, fs, io};
+use std::{path::{PathBuf, Path}, fs, io, collections::HashMap, rc::Rc};
 
 use log::{warn, info};
 
@@ -6,7 +6,8 @@ use crate::model::{Team, MatchTeamList, LeagueJsonFormat};
 
 pub struct JsonLoader {
     files: Vec<PathBuf>,
-    teams: Vec<Team>,
+    teams: Vec<Rc<Team>>,
+    team_name_map: HashMap<String, Rc<Team>>,
     leagues: Vec<LeagueJsonFormat>,
     is_initialized: bool
 }
@@ -16,6 +17,7 @@ impl JsonLoader {
         return JsonLoader {
             files: Vec::new(),
             teams: Vec::new(),
+            team_name_map: HashMap::new(),
             leagues: Vec::new(),
             is_initialized: false,
         };
@@ -59,7 +61,7 @@ impl JsonLoader {
     }
 
     /// Loads all teams from all files. Will return None if struct has not been initialized.
-    pub fn load_teams(&mut self) -> Option<&Vec<Team>> {
+    pub fn load_teams(&mut self) -> Option<&Vec<Rc<Team>>> {
         if !self.is_initialized {
             warn!("JsonLoader not yet initialized. This function call will return nothing");
             return None;
@@ -99,13 +101,11 @@ impl JsonLoader {
                 }
                 
                 team.id = self.teams.len() as i32 + 1;
-                self.teams.push(team);
+                
+                let team_rc = Rc::new(team);
+                self.teams.push(team_rc.clone());
+                self.team_name_map.insert(team_rc.name.clone(), team_rc.clone());
             }
-        }
-        
-        // Assign id to teams
-        for (i, team) in self.teams.iter_mut().enumerate() {
-            team.id = i as i32;
         }
         
         return Some(self.get_teams());
@@ -157,7 +157,7 @@ impl JsonLoader {
         return Ok(file_path_list);
     }
     
-    pub fn get_teams(&self) -> &Vec<Team> {
+    pub fn get_teams(&self) -> &Vec<Rc<Team>> {
         &self.teams
     }
 }
