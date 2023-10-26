@@ -20,11 +20,11 @@ pub struct Team {
 #[derive(Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum LeagueJsonFormat {
-    OldFormat(League),
-    NewFormat(NewLeague)
+    OldFormat(OldLeagueFormat),
+    NewFormat(NewLeagueFormat)
 }
 
-pub trait LeagueMatchObject {
+pub trait LeagueMatch {
     fn get_date(&self) -> &str;
     fn get_team_1_name(&self) -> &str;
     fn get_team_2_name(&self) -> &str;
@@ -33,7 +33,7 @@ pub trait LeagueMatchObject {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct League {
+pub struct OldLeagueFormat {
     pub name: String,
     pub rounds: Vec<LeagueRound>,
 }
@@ -41,24 +41,18 @@ pub struct League {
 #[derive(Serialize, Deserialize)]
 pub struct LeagueRound {
     pub name: String,
-    pub matches: Vec<LeagueMatch>,
+    pub matches: Vec<OldLeagueMatch>,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct LeagueMatch {
+pub struct OldLeagueMatch {
     pub date: String,
     pub team1: String,
     pub team2: String,
     pub score: Option<LeagueScoreFormat>,
 }
 
-impl Default for LeagueMatch {
-    fn default() -> Self {
-        LeagueMatch { date: String::new(), team1: String::new(), team2: String::new(), score: None }
-    }
-}
-
-impl LeagueMatchObject for LeagueMatch {
+impl LeagueMatch for OldLeagueMatch {
     fn get_date(&self) -> &str {
         &self.date
     }
@@ -147,7 +141,7 @@ impl LeagueScore for LeagueScoreFormat {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct NewLeague {
+pub struct NewLeagueFormat {
     pub name: String,
     pub matches: Vec<NewLeagueMatch>
 }
@@ -157,10 +151,10 @@ pub struct NewLeagueMatch {
     stage: Option<String>,
     round: String,
     #[serde(flatten)]
-    match_info: LeagueMatch,
+    match_info: OldLeagueMatch,
 }
 
-impl LeagueMatchObject for NewLeagueMatch {
+impl LeagueMatch for NewLeagueMatch {
     fn get_date(&self) -> &str {
         self.match_info.get_date()
     }
