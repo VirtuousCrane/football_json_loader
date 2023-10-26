@@ -28,8 +28,8 @@ pub trait LeagueMatchObject {
     fn get_date(&self) -> &str;
     fn get_team_1_name(&self) -> &str;
     fn get_team_2_name(&self) -> &str;
-    fn get_team_1_score(&self) -> Option<&i32>;
-    fn get_team_2_score(&self) -> Option<&i32>;
+    fn get_team_1_score(&self) -> Option<i32>;
+    fn get_team_2_score(&self) -> Option<i32>;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -45,17 +45,16 @@ pub struct LeagueRound {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(default)]
 pub struct LeagueMatch {
     pub date: String,
     pub team1: String,
     pub team2: String,
-    pub score: LeagueScore,
+    pub score: Option<LeagueScoreFormat>,
 }
 
 impl Default for LeagueMatch {
     fn default() -> Self {
-        LeagueMatch { date: String::new(), team1: String::new(), team2: String::new(), score: LeagueScore::default() }
+        LeagueMatch { date: String::new(), team1: String::new(), team2: String::new(), score: None }
     }
 }
 
@@ -72,33 +71,78 @@ impl LeagueMatchObject for LeagueMatch {
         &self.team2
     }
 
-    fn get_team_1_score(&self) -> Option<&i32> {
-        self.score.get_team_1_score()
+    fn get_team_1_score(&self) -> Option<i32> {
+        if let Some(s) = &self.score {
+            return Some(s.get_team_1_score());
+        }
+        
+        None
     }
 
-    fn get_team_2_score(&self) -> Option<&i32> {
-        self.score.get_team_2_score()
+    fn get_team_2_score(&self) -> Option<i32> {
+        if let Some(s) = &self.score {
+            return Some(s.get_team_2_score());
+        }
+        
+        None
     }
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct LeagueScore {
+#[serde(untagged)]
+pub enum LeagueScoreFormat {
+    Normal(NormalLeagueScore),
+    Australian(AustralianScore),
+}
+
+pub trait LeagueScore {
+    fn get_team_1_score(&self) -> i32;
+    fn get_team_2_score(&self) -> i32;
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct NormalLeagueScore {
     pub ft: Vec<i32>,
 }
 
-impl LeagueScore {
-    pub fn get_team_1_score(&self) -> Option<&i32> {
-        self.ft.get(0)
+impl LeagueScore for NormalLeagueScore {
+    fn get_team_1_score(&self) -> i32 {
+        self.ft[0]
     }
     
-    pub fn get_team_2_score(&self) -> Option<&i32> {
-        self.ft.get(1)
+    fn get_team_2_score(&self) -> i32 {
+        self.ft[1]
     }
 }
 
-impl Default for LeagueScore {
-    fn default() -> Self {
-        LeagueScore { ft: vec![-1, -1] }
+#[derive(Serialize, Deserialize, Clone)]
+pub struct AustralianScore {
+    pub et: Vec<i32>,
+    pub p: Vec<i32>,
+}
+
+impl LeagueScore for AustralianScore {
+    fn get_team_1_score(&self) -> i32 {
+        self.et[0]
+    }
+    
+    fn get_team_2_score(&self) -> i32 {
+        self.et[1]
+    }
+}
+
+impl LeagueScore for LeagueScoreFormat {
+    fn get_team_1_score(&self) -> i32 {
+        match self {
+            LeagueScoreFormat::Normal(n) => n.get_team_1_score(),
+            LeagueScoreFormat::Australian(a) => a.get_team_2_score(),
+        }
+    }
+    fn get_team_2_score(&self) -> i32 {
+        match self {
+            LeagueScoreFormat::Normal(n) => n.get_team_2_score(),
+            LeagueScoreFormat::Australian(a) => a.get_team_2_score(),
+        }
     }
 }
 
@@ -110,9 +154,10 @@ pub struct NewLeague {
 
 #[derive(Serialize, Deserialize)]
 pub struct NewLeagueMatch {
+    stage: Option<String>,
+    round: String,
     #[serde(flatten)]
     match_info: LeagueMatch,
-    round: String
 }
 
 impl LeagueMatchObject for NewLeagueMatch {
@@ -128,11 +173,11 @@ impl LeagueMatchObject for NewLeagueMatch {
         self.match_info.get_team_2_name()
     }
 
-    fn get_team_1_score(&self) -> Option<&i32> {
+    fn get_team_1_score(&self) -> Option<i32> {
         self.match_info.get_team_1_score()
     }
 
-    fn get_team_2_score(&self) -> Option<&i32> {
+    fn get_team_2_score(&self) -> Option<i32> {
         self.match_info.get_team_2_score()
     }
 }
