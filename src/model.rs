@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
@@ -24,8 +25,31 @@ pub enum LeagueJsonFormat {
     NewFormat(NewLeagueFormat)
 }
 
+impl LeagueJsonFormat {
+    pub fn get_league_name(&self) -> String {
+        match &self {
+            LeagueJsonFormat::OldFormat(o) => o.name.clone(),
+            LeagueJsonFormat::NewFormat(n) => n.name.clone()
+        }
+    }
+    
+    pub fn get_league_id(&self) -> i32 {
+        match &self {
+            LeagueJsonFormat::OldFormat(o) => o.id,
+            LeagueJsonFormat::NewFormat(n) => n.id,
+        }
+    }
+    
+    pub fn set_league_id(&mut self, id: i32) {
+        match self {
+            LeagueJsonFormat::OldFormat(o) => o.id = id,
+            LeagueJsonFormat::NewFormat(n) => n.id = id,
+        }
+    }
+}
+
 pub trait LeagueMatch {
-    fn get_date(&self) -> &str;
+    fn get_date(&self) -> &NaiveDate;
     fn get_team_1_name(&self) -> &str;
     fn get_team_2_name(&self) -> &str;
     fn get_team_1_score(&self) -> Option<i32>;
@@ -34,6 +58,8 @@ pub trait LeagueMatch {
 
 #[derive(Serialize, Deserialize)]
 pub struct OldLeagueFormat {
+    #[serde(skip_deserializing, default)]
+    pub id: i32,
     pub name: String,
     pub rounds: Vec<LeagueRound>,
 }
@@ -46,14 +72,15 @@ pub struct LeagueRound {
 
 #[derive(Serialize, Deserialize)]
 pub struct OldLeagueMatch {
-    pub date: String,
+    //#[serde(with = "my_date_format")]
+    pub date: NaiveDate,
     pub team1: String,
     pub team2: String,
     pub score: Option<LeagueScoreFormat>,
 }
 
 impl LeagueMatch for OldLeagueMatch {
-    fn get_date(&self) -> &str {
+    fn get_date(&self) -> &NaiveDate {
         &self.date
     }
 
@@ -141,6 +168,8 @@ impl LeagueScore for LeagueScoreFormat {
 
 #[derive(Serialize, Deserialize)]
 pub struct NewLeagueFormat {
+    #[serde(skip_deserializing, default)]
+    pub id: i32,
     pub name: String,
     pub matches: Vec<NewLeagueMatch>
 }
@@ -154,7 +183,7 @@ pub struct NewLeagueMatch {
 }
 
 impl LeagueMatch for NewLeagueMatch {
-    fn get_date(&self) -> &str {
+    fn get_date(&self) -> &NaiveDate {
         self.match_info.get_date()
     }
 
