@@ -5,6 +5,9 @@ The football_json_loader cmd tool helps you load a the [football.json](https://g
 - Clones the football.json repository into /tmp
 - Read through all the files in the football.json repository, parses all the json files, and save them into an SQLite dataset
 
+## I just want to download the football_json.sqlite file
+If you just want to download the football_json.sqlite database file, please check out the releases page by clicking [here](https://github.com/VirtuousCrane/football_json_loader/releases/latest)
+
 ## Table of Contents
 - [To Install](#to-install)
 - [To Use](#to-use)
@@ -61,11 +64,13 @@ football_json_loader --file_loc ~/football_json.sqlite
 ## Data Processing
 Despite what was shown on football.json project's homepage, the data format is very inconsistent. Therefore, I have defined several structs and enums to parse the JSON properly.
 
-Currently, the program still can't process some rows of data because the club names weren't present in the corresponding .club files.
+Currently, the program still can't process some rows of data because the club names aren't present in the corresponding .club files.
 
 ## Database Schema
 All SQL code used to create the databases can be viewed in db.rs
 
 ![Database Schema](./assets/football_json_db_schema.png)
 
-# TODO: More Documentation
+# TODO
+- Automatically insert clubs/teams not defined in .club files into the database
+- Write tests
