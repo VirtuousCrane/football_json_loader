@@ -8,6 +8,8 @@ The football_json_loader cmd tool helps you load a the [football.json](https://g
 ## Table of Contents
 - [To Install](#to-install)
 - [To Use](#to-use)
+- [Data Processing](#data-processing)
+- [Database Schema](#database-schema)
 
 # To Install
 1) Install Rust
@@ -49,5 +51,19 @@ football_json_loader --warnings
 ```
 football_json_loader --verbose
 ```
+
+### Generate a file at a specific location
+```
+football_json_loader --file_loc ~/football_json.sqlite
+```
+
+# Nerdy Stuff
+## Data Processing
+Despite what was shown on football.json project's homepage, the data format is very inconsistent. Therefore, I have defined several structs and enums to parse the JSON properly.
+
+Currently, the program still can't process some rows of data because the club names weren't present in the corresponding .club files.
+
+## Database Schema
+All SQL code used to create the databases can be viewed in db.rs
 
 # TODO: More Documentation
