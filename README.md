@@ -66,4 +66,6 @@ Currently, the program still can't process some rows of data because the club na
 ## Database Schema
 All SQL code used to create the databases can be viewed in db.rs
 
+![Database Schema](./assets/football_json_db_schema.png)
+
 # TODO: More Documentation
